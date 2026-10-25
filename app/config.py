@@ -3,6 +3,11 @@ import tempfile
 from pathlib import Path
 from pydantic_settings import BaseSettings
 
+# Determine a guaranteed writable directory for runtime artifacts.
+# Operating system tempdir (e.g. /tmp on Linux/Vercel/Lambda, /tmp or /var/folders on macOS)
+# is ALWAYS writable across all platforms, including serverless environments.
+_SYSTEM_TMP_DIR = Path(tempfile.gettempdir()) / "forensight"
+
 class Settings(BaseSettings):
     APP_NAME: str = "ForenSight"
     APP_VERSION: str = "1.0.0"
@@ -13,16 +18,11 @@ class Settings(BaseSettings):
     STATIC_DIR: Path = BASE_DIR / "static"
     
     # Writable runtime directories:
-    # On serverless platforms (e.g. Vercel / AWS Lambda), the deployment root is read-only.
-    # Writable files must be placed in a writable directory such as /tmp/forensight or configured path.
-    GENERATED_DIR: Path = Path(os.environ.get("FORENSIGHT_GENERATED_DIR") or (
-        Path("/tmp/forensight/generated") if os.environ.get("VERCEL")
-        else BASE_DIR / "static" / "generated"
-    ))
-    REPORTS_DIR: Path = Path(os.environ.get("FORENSIGHT_REPORTS_DIR") or (
-        Path("/tmp/forensight/reports") if os.environ.get("VERCEL")
-        else BASE_DIR / "reports"
-    ))
+    # Always default to the operating system's writable tempdir (_SYSTEM_TMP_DIR)
+    # unless explicitly overridden via environment variable.
+    # This completely eliminates any risk of writing to read-only paths (such as /var/task).
+    GENERATED_DIR: Path = Path(os.environ.get("FORENSIGHT_GENERATED_DIR") or (_SYSTEM_TMP_DIR / "generated"))
+    REPORTS_DIR: Path = Path(os.environ.get("FORENSIGHT_REPORTS_DIR") or (_SYSTEM_TMP_DIR / "reports"))
     
     DATA_DIR: Path = BASE_DIR / "data"
     CG1050_DIR: Path = Path(os.environ.get("FORENSIGHT_DATASET_DIR") or (DATA_DIR / "CG-1050"))

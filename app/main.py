@@ -23,15 +23,23 @@ app.add_middleware(
 )
 
 # Ensure writable runtime directories exist prior to mounting
-settings.GENERATED_DIR.mkdir(parents=True, exist_ok=True)
-settings.REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    settings.GENERATED_DIR.mkdir(parents=True, exist_ok=True)
+    settings.REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+except OSError:
+    pass
 
 # Mount runtime generated files first so /static/generated resolves to the writable GENERATED_DIR
-app.mount("/static/generated", StaticFiles(directory=str(settings.GENERATED_DIR)), name="generated")
-# Mount static UI assets (CSS, JS)
-app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")
+if settings.GENERATED_DIR.exists():
+    app.mount("/static/generated", StaticFiles(directory=str(settings.GENERATED_DIR)), name="generated")
+
+# Mount static UI assets (CSS, JS) if directory exists
+if settings.STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")
+
 # Mount reports directory for PDF download
-app.mount("/reports", StaticFiles(directory=str(settings.REPORTS_DIR)), name="reports")
+if settings.REPORTS_DIR.exists():
+    app.mount("/reports", StaticFiles(directory=str(settings.REPORTS_DIR)), name="reports")
 
 # Include API routers
 app.include_router(health.router, prefix="/api", tags=["Health & Capabilities"])
