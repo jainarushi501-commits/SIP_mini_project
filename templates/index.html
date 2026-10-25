@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForenSight — Non-ML Digital Image Forensics</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="brand">
+            <div class="brand-icon">F</div>
+            <div class="brand-title">ForenSight</div>
+            <div class="brand-badge">Deterministic Forensics</div>
+        </div>
+        <nav class="nav-links">
+            <button class="nav-btn active" data-tab="analysis-tab">Image Analysis</button>
+            <button class="nav-btn" data-tab="benchmark-tab">CG-1050 Benchmark</button>
+            <button class="nav-btn" data-tab="about-tab">Methodology & Citations</button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- 1. ANALYSIS SECTION -->
+        <section id="analysis-tab" class="section active">
+            <div id="upload-stage">
+                <div class="upload-card" id="drop-zone">
+                    <div class="upload-icon">&#8682;</div>
+                    <h2 class="upload-title">Drop Target Image or Click to Browse</h2>
+                    <p class="upload-subtitle">Supports JPEG, PNG, and WebP (up to 25 MB). Analyzed strictly via deterministic signal processing.</p>
+                    <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" style="display: none;">
+                    <button class="btn-primary" onclick="document.getElementById('file-input').click()">Select Local File</button>
+                </div>
+
+                <div id="preview-panel" class="preview-panel" style="display: none;">
+                    <img id="preview-thumb" class="preview-thumb" src="" alt="Target Preview">
+                    <div class="preview-meta">
+                        <div class="meta-row"><span class="meta-label">Selected File:</span><span id="preview-filename" class="meta-val">-</span></div>
+                        <div class="meta-row"><span class="meta-label">File Size:</span><span id="preview-filesize" class="meta-val">-</span></div>
+                        <div class="meta-row"><span class="meta-label">Native Type:</span><span id="preview-filetype" class="meta-val">-</span></div>
+                        <div style="margin-top: 1rem;">
+                            <button id="start-analysis-btn" class="btn-primary">Execute Forensic Pipeline</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="loading-spinner" style="display: none; text-align: center; margin-top: 3rem;">
+                    <div class="spinner"></div>
+                    <p style="color: var(--accent); font-weight: 500;">Running deterministic forensic modules...</p>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Computing 2D FFT, ELA recompression, SIFT homography, noise residual MAD, and JPEG DCT statistics.</p>
+                </div>
+            </div>
+
+            <!-- RESULTS STAGE -->
+            <div id="results-stage" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2>Forensic Inspection Results</h2>
+                    <div>
+                        <button id="new-analysis-btn" class="nav-btn" style="margin-right: 0.5rem;">Upload Another Image</button>
+                        <a id="download-pdf-btn" href="#" target="_blank" class="btn-primary" style="text-decoration: none; display: inline-block;">Download Official PDF Report</a>
+                    </div>
+                </div>
+
+                <!-- Overall Verdict Banner -->
+                <div id="verdict-banner" class="verdict-banner">
+                    <div>
+                        <div id="verdict-title" class="verdict-title">ANALYSIS IN PROGRESS</div>
+                        <p id="verdict-desc" class="verdict-desc">-</p>
+                        <div id="provenance-badge" style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);"></div>
+                    </div>
+                </div>
+
+                <!-- Forensic Modules Grid -->
+                <div id="modules-container" class="modules-grid">
+                    <!-- Populated dynamically by analysis.js -->
+                </div>
+
+                <!-- Scientific Integrity Notice -->
+                <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; font-size: 0.8rem; color: var(--text-secondary);">
+                    <b style="color: var(--text-primary);">Scientific Integrity & Forensic Limitations:</b>
+                    <p id="disclaimer-text" style="margin-top: 0.4rem;"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. BENCHMARK SECTION -->
+        <section id="benchmark-tab" class="section">
+            <div style="margin-bottom: 2rem;">
+                <h2>CG-1050 Research Manipulation Benchmark</h2>
+                <p style="color: var(--text-secondary); margin-top: 0.25rem;">
+                    Evaluates non-ML forensic pipeline accuracy across source-grouped authentic and tampered partitions.
+                    Derivatives of the same source image are strictly isolated to prevent data leakage.
+                </p>
+            </div>
+
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-label">Manifest Pairs</div>
+                    <div id="stat-pairs" class="stat-value">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Dataset Status</div>
+                    <div id="stat-status" class="stat-value" style="font-size: 1.25rem; margin-top: 0.5rem;">Checking...</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Held-out Accuracy Target</div>
+                    <div class="stat-value">&ge; 80.0%</div>
+                </div>
+            </div>
+
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+                <h3 style="font-size: 1.05rem; margin-bottom: 0.75rem;">Dataset Installation & Inspection</h3>
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                    The CG-1050 dataset is loaded from the local path configured via <code>FORENSIGHT_DATASET_DIR</code> (default: <code>data/CG-1050</code>).
+                </p>
+                <div style="display: flex; gap: 1rem;">
+                    <button id="refresh-dataset-btn" class="nav-btn active">Inspect Dataset Directory</button>
+                    <button id="run-benchmark-btn" class="btn-primary">Execute Held-Out Benchmark</button>
+                </div>
+            </div>
+
+            <div id="benchmark-loading" style="display: none; text-align: center; margin: 3rem 0;">
+                <div class="spinner"></div>
+                <p style="color: var(--accent); font-weight: 500;">Executing held-out evaluation with frozen thresholds...</p>
+                <p style="color: var(--text-muted); font-size: 0.85rem;">Processing authentic and manipulated pairs with zero cross-partition leakage.</p>
+            </div>
+
+            <div id="benchmark-results" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                    <!-- Calibration Partition Card -->
+                    <div class="module-card">
+                        <div class="module-card-header">
+                            <span class="module-title">Calibration Partition (Tuned Only Here)</span>
+                            <span class="module-badge badge-completed">Calibrated</span>
+                        </div>
+                        <div class="module-card-body" id="calib-metrics-body">
+                            <!-- Metrics injected -->
+                        </div>
+                    </div>
+
+                    <!-- Held-Out Partition Card -->
+                    <div class="module-card">
+                        <div class="module-card-header">
+                            <span class="module-title">Held-Out Test Partition (Frozen Thresholds)</span>
+                            <span id="target-achieved-badge" class="module-badge badge-completed">Result Measured</span>
+                        </div>
+                        <div class="module-card-body" id="heldout-metrics-body">
+                            <!-- Metrics injected -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confusion Matrix & Detailed Logs -->
+                <div class="module-card" style="margin-bottom: 2rem;">
+                    <div class="module-card-header">
+                        <span class="module-title">Held-Out Confusion Matrix & Scientific Notes</span>
+                    </div>
+                    <div class="module-card-body" id="benchmark-notes-body">
+                        <!-- Injected -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. ABOUT & METHODOLOGY SECTION -->
+        <section id="about-tab" class="section">
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 2rem;">
+                <h2 style="margin-bottom: 1rem;">Scientific Methodology & Algorithmic Rigor</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    ForenSight is engineered exclusively using classical computer vision, digital signal processing,
+                    and cryptographic standards. It deliberately avoids opaque neural networks, black-box deep learning,
+                    or unverified generative detection APIs.
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--accent);">Documented Algorithmic Modules</h3>
+                <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 1.5rem; font-size: 0.9rem;">
+                    <li><b>Metadata & Quantization Tables:</b> ISO 12234-2 EXIF extraction, editor software flags, timestamp desynchronization, and JPEG DQT parsing.</li>
+                    <li><b>Error Level Analysis (ELA):</b> Krawetz (2007) resaved differential analysis at Q=90 with regional mean + 2.5&sigma; anomaly localization.</li>
+                    <li><b>2D Fourier Analysis (FFT):</b> Popescu & Farid (2005) Hann-windowed log spectrum S(u,v) = log(1 + |F(u,v)|) with conjugate peak clustering.</li>
+                    <li><b>Resampling Spectral Correlation:</b> Li et al. (2026, PubMed: 42574416) 2nd-derivative discrete difference marginal power spectrum correlation.</li>
+                    <li><b>Copy-Move Duplication:</b> Amerini et al. (2011) SIFT keypoints with Lowe's ratio test, spatial distance exclusion (&ge;30px), and RANSAC homography.</li>
+                    <li><b>Noise & Residual Dispersion:</b> Lyu et al. (2014) high-pass Laplacian residuals with patch-level Median Absolute Deviation (MAD / 0.6745) z-scores.</li>
+                    <li><b>Edge & Boundary Discontinuities:</b> Canny edge density and Sobel gradient magnitude localization along candidate splicing seams.</li>
+                    <li><b>C2PA Provenance:</b> C2PA Specification v1.3 JUMBF manifest extraction and cryptographic asset binding verification via <code>c2patool</code>.</li>
+                </ul>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--accent);">CG-1050 Research Citation</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; font-style: italic;">
+                    Maikol Castro, Dora M. Ballesteros, Diego Renza, "A dataset of 1050-tampered color and grayscale images (CG-1050)," Data in Brief, DOI: 10.1016/j.dib.2019.104864.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/analysis.js"></script>
+    <script src="/static/js/benchmark.js"></script>
+</body>
+</html>
